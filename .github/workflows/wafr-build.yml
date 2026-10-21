@@ -1,24 +1,258 @@
-name: WAFR Build Check
+TypeScript
 
-on:
-  push:
-  workflow_dispatch:
+"use client";
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+import { useMemo, useState } from "react";
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+type Product = {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  emoji: string;
+  description: string;
+};
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+const categories = [
+  "كل السوق",
+  "البيع والشراء",
+  "الطعام والتوصيل",
+  "الخدمات",
+  "الكهربائيات",
+  "قطع التبديل",
+  "الهدايا والطلبات الخاصة",
+];
 
-      - name: Install dependencies
-        run: npm install
+const products: Product[] = [
+  { id: 1, name: "هاتف ذكي", category: "البيع والشراء", price: 250, emoji: "📱", description: "أجهزة وهواتف متنوعة" },
+  { id: 2, name: "وجبة طعام", category: "الطعام والتوصيل", price: 5, emoji: "🍔", description: "اطلب وجبتك المفضلة" },
+  { id: 3, name: "خدمات كهربائية", category: "الخدمات", price: 10, emoji: "🔧", description: "خدمات وصيانة منزلية" },
+  { id: 4, name: "مصباح LED", category: "الكهربائيات", price: 8, emoji: "💡", description: "إنارة منزلية موفرة" },
+  { id: 5, name: "قطعة تبديل", category: "قطع التبديل", price: 15, emoji: "⚙️", description: "ابحث عن القطعة المناسبة" },
+  { id: 6, name: "هدية مميزة", category: "الهدايا والطلبات الخاصة", price: 12, emoji: "🎁", description: "هدايا وطلبات حسب رغبتك" },
+  { id: 7, name: "كرسي منزلي", category: "البيع والشراء", price: 35, emoji: "🪑", description: "أثاث ومستلزمات منزلية" },
+  { id: 8, name: "قهوة ساخنة", category: "الطعام والتوصيل", price: 2, emoji: "☕", description: "مشروبات ساخنة وباردة" },
+];
 
-      - name: Build project
-        run: npm run build
+export default function Home() {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("كل السوق");
+  const [cart, setCart] = useState<Product[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [notice, setNotice] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesCategory =
+        category === "كل السوق" || product.category === category;
+      const matchesSearch =
+        product.name.includes(search.trim()) ||
+        product.category.includes(search.trim()) ||
+        product.description.includes(search.trim());
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [search, category]);
+
+  function addToCart(product: Product) {
+    setCart((current) => [...current, product]);
+    setNotice(`أضفنا ${product.name} إلى السلة`);
+  }
+
+  function toggleFavorite(id: number) {
+    setFavorites((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id]
+    );
+  }
+
+  return (
+    <main dir="rtl" className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-20 border-b bg-white/95 shadow-sm backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-emerald-700">
+              وَفْر<span className="text-amber-500">.</span>
+            </h1>
+            <p className="text-xs text-slate-500">سوق واحد.. خيارات بلا حدود</p>
+          </div>
+          <button
+            onClick={() => setNotice(`في سلتك ${cart.length} منتج`)}
+            className="rounded-xl bg-emerald-700 px-4 py-3 font-bold text-white"
+          >
+            🛒 السلة ({cart.length})
+          </button>
+        </div>
+
+        <div className="mx-auto max-w-7xl px-4 pb-4">
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="ابحث عن منتج أو خدمة..."
+            className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 outline-none focus:border-emerald-600"
+          />
+        </div>
+      </header>
+
+      <section className="mx-auto max-w-7xl px-4 py-8">
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-l from-emerald-900 via-emerald-700 to-teal-600 p-7 text-white md:p-12">
+          <p className="mb-3 font-bold text-amber-300">أهلاً بك في وَفْر</p>
+          <h2 className="max-w-2xl text-3xl font-black leading-relaxed md:text-5xl">
+            كل ما تبحث عنه،
+            <br />
+            في مكان واحد.
+          </h2>
+          <p className="mt-4 max-w-xl leading-8 text-emerald-50">
+            اكتشف المنتجات والخدمات والطعام والهدايا وقطع التبديل في تجربة
+            تسوق عربية بسيطة.
+          </p>
+          <button
+            onClick={() =>
+              document.getElementById("market")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="mt-6 rounded-xl bg-amber-400 px-6 py-3 font-black text-emerald-950"
+          >
+            اكتشف السوق ←
+          </button>
+        </div>
+
+        <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            ["🛍️", "منتجات متنوعة"],
+            ["🍔", "طعام وتوصيل"],
+            ["🧰", "خدمات وصيانة"],
+            ["🎁", "هدايا وطلبات"],
+          ].map(([emoji, title]) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
+            >
+              <div className="text-3xl">{emoji}</div>
+              <p className="mt-2 font-bold">{title}</p>
+            </div>
+          ))}
+        </div>
+
+        <section id="market" className="mt-10">
+          <div className="mb-5">
+            <h2 className="text-2xl font-black">تسوّق حسب القسم</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              اختر القسم المناسب أو ابحث مباشرةً.
+            </p>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-4">
+            {categories.map((item) => (
+              <button
+                key={item}
+                onClick={() => setCategory(item)}
+                className={`shrink-0 rounded-full px-4 py-3 text-sm font-bold ${
+                  category === item
+                    ? "bg-emerald-700 text-white"
+                    : "border bg-white text-slate-700"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-2xl font-black">
+              {category === "كل السوق" ? "اكتشف المنتجات" : category}
+            </h2>
+            <span className="text-sm text-slate-500">
+              {filteredProducts.length} منتجات
+            </span>
+          </div>
+
+          {filteredProducts.length === 0 ? (
+            <div className="rounded-2xl bg-white p-10 text-center">
+              <p className="text-4xl">🔎</p>
+              <p className="mt-3 font-bold">ما لقينا نتائج مطابقة</p>
+              <p className="mt-1 text-sm text-slate-500">
+                جرّب كلمة بحث ثانية أو اختر كل السوق.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {filteredProducts.map((product) => (
+                <article
+                  key={product.id}
+                  className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                >
+                  <div className="relative flex h-32 items-center justify-center bg-emerald-50 text-6xl md:h-40">
+                    {product.emoji}
+                    <button
+                      aria-label="إضافة للمفضلة"
+                      onClick={() => toggleFavorite(product.id)}
+                      className="absolute left-3 top-3 rounded-full bg-white p-2 shadow-sm"
+                    >
+                      {favorites.includes(product.id) ? "❤️" : "🤍"}
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-xs font-bold text-emerald-700">
+                      {product.category}
+                    </p>
+                    <h3 className="mt-2 font-black">{product.name}</h3>
+                    <p className="mt-1 min-h-10 text-xs leading-5 text-slate-500">
+                      {product.description}
+                    </p>
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      <span className="font-black text-emerald-800">
+                        ${product.price}
+                      </span>
+                      <button
+                        onClick={() => addToCart(product)}
+                        className="rounded-lg bg-emerald-700 px-3 py-2 text-sm font-bold text-white"
+                      >
+                        + أضف
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="mt-10 rounded-3xl border border-emerald-100 bg-white p-6 md:p-8">
+          <h2 className="text-2xl font-black">ما لقيت اللي بدك ياه؟</h2>
+          <p className="mt-2 leading-7 text-slate-600">
+            وَفْر يجمع لك احتياجاتك في مكان واحد. يمكنك البحث ضمن الأقسام
+            المتاحة، وسيجري تطوير استقبال طلبات الشراء والبيع والخدمات لاحقاً.
+          </p>
+          <button
+            onClick={() => setNotice("ميزة نشر الطلبات قيد التجهيز")}
+            className="mt-4 rounded-xl border border-emerald-700 px-5 py-3 font-bold text-emerald-800"
+          >
+            اطلب شيئاً خاصاً
+          </button>
+        </section>
+
+        <footer className="mt-10 border-t py-6 text-center text-sm text-slate-500">
+          <p className="font-black text-emerald-800">وَفْر.</p>
+          <p className="mt-2">سوق واحد.. خيارات بلا حدود</p>
+          <p className="mt-1">© 2026 وَفْر — جميع الحقوق محفوظة</p>
+        </footer>
+      </section>
+
+      {notice && (
+        <div
+          role="status"
+          className="fixed bottom-4 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl bg-slate-900 p-4 text-center font-bold text-white shadow-xl"
+        >
+          <div>{notice}</div>
+          <button
+            onClick={() => setNotice("")}
+            className="mt-2 rounded-lg bg-white/15 px-4 py-2 text-sm"
+          >
+            إغلاق
+          </button>
+        </div>
+      )}
+    </main>
+  );
+}
