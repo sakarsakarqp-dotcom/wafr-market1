@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./Globals.css";
 
 export const metadata: Metadata = {
-  title: "وَفْر | سوق واحد.. خيارات بلا حدود",
-  description: "منصة وَفْر للتسوّق من متاجر متعددة في مكان واحد.",
+title: "وَفْر | سوق واحد.. خيارات بلا حدود",
+description:
+"منصة وَفْر، سوق شامل لطلبات البيع والشراء والمنتجات والخدمات والطعام والتوصيل والهدايا وقطع التبديل.",
 };
 
 export default function RootLayout({
-  children,
+children,
 }: Readonly<{
-  children: React.ReactNode;
+children: React.ReactNode;
 }>) {
-  return (
-    <html lang="ar" dir="rtl">
-      <body>{children}</body>
-    </html>
-  );
+return (
+<html lang="ar" dir="rtl">
+<body>{children}</body>
+</html>
+);
 }
